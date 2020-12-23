@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8 />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+	<title>Лабораторная работа 8 - Ксения Мальчикова</title>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+	<div style="margin-left: 100px;">
+		<p>
+			<b>1. Название и цель работы</b>
+			<br>
+			Изучение методов оценки алгоритмов.
+			Составить две программы, которые реализуют алгоритмы ускоренной сортировки «пузырьком» и шейкером.
+			<br>
+			Исходные данные задавать с помощью датчика случайных чисел.
+		</p>
+		
+		<p>
+			<b>2. Алгоритмы</b>
+			<pre>
+function bubbleSort(arr) {
+for (var i = 0, endI = arr.length - 1; i < endI; i++) {
+    var wasSwap = false;
+    for (var j = 0, endJ = endI - i; j < endJ; j++) {
+        if (arr[j] > arr[j + 1]) {
+            var swap = arr[j];
+            arr[j] = arr[j + 1];
+            arr[j + 1] = swap;
+            wasSwap = true;
+        }
+    }
+    if (!wasSwap) break;
+}
+return arr;
+}
+
+function shakerSort(A) {
+var i = 0, j = A.length-1, s = true, t;
+while (i < j && s){ 
+	s = false;
+  for (var k = i; k < j; k++) { 
+  	if (A[k] > A[k+1]) { 
+  		t = A[k]; 
+  		A[k] = A[k+1]; 
+  		A[k+1] = t; 
+  		s = true; 
+  	} 
+  }
+  j--;
+  if (s){ 
+  	s = false;
+    for (var k = j; k > i; k--) { 
+    	if (A[k] < A[k-1]) {
+    	 t = A[k]; 
+    	 A[k] = A[k-1]; 
+    	 A[k-1] = t; 
+    	 s = true; 
+    	} 
+    }
+   }
+  i++;
+}
+return A;
+}
+			</pre>
+		</p>
+		
+		<p>
+			<b>3. Формулы асимптотической и верхней оценки сложности заданного алгоритма</b>
+			<br>
+			Сортировка пузырьком — сложность алгоритма: O(n^2); для каждой пары индексов производится обмен, если элементы расположены не по порядку.
+			<br>
+			Сортировка перемешиванием — сложность алгоритма: O(n^2).
+		</p>
+		
+		<p>
+			<b>4. Значение временной сложности алгоритма при текущем выполнении</b>
+			<br>
+			Значение n: <b id="n"></b>
+			<br>
+			Время выполнения алгоритма Bubble Sort: <b id="time"></b> миллисекунд
+			<br>
+			Время выполнения алгоритма Shaker Sort: <b id="time2"></b> миллисекунд
+		</p>
+		
+	</div>
+	
+	<div id="chart" style="height: 400px; width: 800px;"></div>
+	<div id="chart2" style="height: 400px; width: 800px;"></div>
+	
+	<script>
+
+		/* Генерация случайоного числа от min до max */
+		function random(min, max) {
+  			return Math.floor(Math.random() * (max - min + 1) ) + min;
+		}
+		
+		var n = random(10000, 10000);
+		
+		/* Заполнение массива из n случайных чисел */
+		
+		var array = [];
+		for (var i = 0; i < n; i++) {
+			array.push(random(10, 100));
+		}
+
+		function bubbleSort(arr) {
+		    for (var i = 0, endI = arr.length - 1; i < endI; i++) {
+		        var wasSwap = false;
+		        for (var j = 0, endJ = endI - i; j < endJ; j++) {
+		            if (arr[j] > arr[j + 1]) {
+		                var swap = arr[j];
+		                arr[j] = arr[j + 1];
+		                arr[j + 1] = swap;
+		                wasSwap = true;
+		            }
+		        }
+		        if (!wasSwap) break;
+		    }
+		    return arr;
+		}
+
+		function shakerSort(A) {
+		    var i = 0, j = A.length-1, s = true, t;
+		    while (i < j && s){ 
+		    	s = false;
+		      for (var k = i; k < j; k++) { 
+		      	if (A[k] > A[k+1]) { 
+		      		t = A[k]; 
+		      		A[k] = A[k+1]; 
+		      		A[k+1] = t; 
+		      		s = true; 
+		      	} 
+		      }
+		      j--;
+		      if (s){ 
+		      	s = false;
+		        for (var k = j; k > i; k--) { 
+		        	if (A[k] < A[k-1]) {
+		        	 t = A[k]; 
+		        	 A[k] = A[k-1]; 
+		        	 A[k-1] = t; 
+		        	 s = true; 
+		        	} 
+		        }
+		       }
+		      i++;
+		    }
+		   return A;
+		}
+
+		var start = performance.now();
+
+		bubbleSort(array);
+
+		var end = performance.now();
+
+		var start2 = performance.now();
+
+		shakerSort(array);
+
+		var end2 = performance.now();
+
+		document.getElementById('n').innerText = n;
+		document.getElementById('time').innerText = (end - start).toFixed(2);
+		document.getElementById('time2').innerText = (end2 - start2).toFixed(2);
+
+		function drawChart() {
+			var data = google.visualization.arrayToDataTable([
+				['Значение n', 'Время выполнения (bubble sort)'],
+				[10000,  142.07],
+				[15000,  335.53],
+				[20000,  665.78],
+				[25000,  1058.36]
+			]);
+
+			var options = {
+				title: '',
+				curveType: 'function',
+				legend: { position: 'bottom' }
+			};
+
+			var chart = new google.visualization.LineChart(document.getElementById('chart'));
+
+			chart.draw(data, options);
+		}
+
+		function drawChart2() {
+			var data = google.visualization.arrayToDataTable([
+				['Значение n', 'Время выполнения (shaker sort)'],
+				[10000,  0.45],
+				[15000,  0.66],
+				[20000,  1.19],
+				[25000,  1.66]
+			]);
+
+			var options = {
+				title: '',
+				curveType: 'function',
+				legend: { position: 'bottom' }
+			};
+
+			var chart = new google.visualization.LineChart(document.getElementById('chart2'));
+
+			chart.draw(data, options);
+		}
+
+		function drawCharts() {
+			drawChart();
+			drawChart2();
+		}
+		
+		google.charts.load('current', {packages: ['corechart']});
+		google.charts.setOnLoadCallback(drawCharts);
+
+
+	</script>
+</body>
+</html>

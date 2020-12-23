@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8 />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+	<title>Лабораторная работа 6 - Ксения Мальчикова</title>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+	<div style="margin-left: 100px;">
+		<p>
+			<b>1. Название и цель работы</b>
+			<br>
+			Изучение методов оценки алгоритмов.
+			Разработать алгоритм и программу ускоренного линейного поиска.
+			<br>
+			В качестве исходных данных использовать строку текста, из которой необходимо выделить слова.
+			<br>
+			Аргумент поиска – слово.
+		</p>
+		
+		<p>
+			<b>2. Алгоритм</b>
+			<pre>
+function linearSearch(value, list) {
+	let found = false; 
+	let position = -1; 
+	let index = 0;
+
+	 while(!found && index < list.length) {
+	 	if(list[index] == value) {
+	 		found = true;     
+	 		position = index; 
+	 	} else {
+	 		index += 1;
+	 	}
+	 }
+	 
+	 return position;
+}
+			</pre>
+		</p>
+		
+		<p>
+			<b>3. Формулы асимптотической и верхней оценки сложности заданного алгоритма</b>
+			<br>
+			Трудоемкость (временная сложность) алгоритма линейного поиска определяется числом операций сравнения, выполняемых при
+			<br>
+			просмотре таблицы эталонов. В лучшем случае количество таких операций равно 1, в худшем – n, а в среднем, если возможные
+			<br>
+			значения ключей равновероятны, - n / 2. Таким образом, асимптотическая оценка О(n) = n.
+		</p>
+		
+		<p>
+			<b>4. Значение временной сложности алгоритма при текущем выполнении</b>
+			<br>
+			Значение n: <b id="n"></b>
+			<br>
+			Результат: <b id="result"></b>
+			<br>
+			Время выполнения: <b id="time"></b> миллисекунд
+		</p>
+	</div>
+	
+	<div id="chart" style="height: 400px; width: 800px;"></div>
+	
+	<script>
+		var text = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etia";
+
+		function linearSearch(value, list) {
+			let found = false; 
+			let position = -1; 
+			let index = 0;
+
+			 while(!found && index < list.length) {
+			 	if(list[index] == value) {
+			 		found = true;     
+			 		position = index; 
+			 	} else {
+			 		index += 1;
+			 	}
+			 }
+
+			 return position;
+		}
+
+		/* Выполнение алгоритма */
+		
+		var array = text.match(/\b(\w+)\b/g);
+
+		var start = performance.now();
+		
+		var result = linearSearch('el', array);
+		
+		var end = performance.now();
+		
+		document.getElementById('n').innerText = array.length;
+		document.getElementById('result').innerText = result;
+		document.getElementById('time').innerText = (end - start).toFixed(2);
+
+		function drawChart() {
+			var data = google.visualization.arrayToDataTable([
+				['Значение n', 'Время выполнения'],
+				[2000,  0.10],
+				[2500,  0.12],
+				[3000,  0.15],
+				[3500,  0.17],
+				[4000,  0.19],
+				[4500,  0.22],
+				[5000,  0.27]
+			]);
+
+			var options = {
+				title: '',
+				curveType: 'function',
+				legend: { position: 'bottom' }
+			};
+
+			var chart = new google.visualization.LineChart(document.getElementById('chart'));
+
+			chart.draw(data, options);
+		}
+		
+		google.charts.load('current', {packages: ['corechart']});
+		google.charts.setOnLoadCallback(drawChart);
+	</script>
+</body>
+</html>

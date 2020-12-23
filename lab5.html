@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset=utf-8 />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+	<title>Лабораторная работа 5 - Ксения Мальчикова</title>
+	<style>
+		body {
+			padding-left: 100px;
+			padding-top: 25px;
+		}
+		#graph {
+			height: 600px;
+			width: 1000px;
+		}
+	</style>
+</head>
+<body>
+	<pre id="task">
+Расширить класс "Граф" (лабораторная  работа 1) методом, реализующим один из алгоритмов обхода графа:
+2.	Алгоритм обхода графа в ширину с использованием внутренней очереди.		
+	</pre>
+	
+	<div id="graph"></div>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.17.0/cytoscape.min.js"></script>
+	<script>
+		/* Класс граф на основе списком смежности */
+		
+		class Graph {
+			constructor() {
+				this.adjacencyList = {}
+			}
+
+			addVertex(vertex) {
+				if (!this.adjacencyList[vertex]) this.adjacencyList[vertex] = []
+			}
+			
+			addEdge(vertex1, vertex2) {
+				this.adjacencyList[vertex1].push(vertex2)
+			}
+			
+			getAdjacencyList(vertex) {
+				return this.adjacencyList[vertex]
+			}
+			
+			getVertices() {
+				let vertices = []
+				
+				for (let vertex in this.adjacencyList) {
+					vertices.push(vertex)
+				}
+				
+				return vertices
+			}
+			
+			removeEdge(vertex1, vertex2) {
+				this.adjacencyList[vertex1] = this.adjacencyList[vertex1].filter(
+					v => v !== vertex2
+				)
+			}
+			
+			removeVertex(vertex) {
+				let edges = this.adjacencyList[vertex]
+				
+				for (let edge of edges) {
+					this.removeEdge(vertex, edge)
+				}
+				
+				delete this.adjacencyList[vertex]
+			}
+			
+			print() {
+				console.log('Список смежности:')
+				
+				for (let vertex in this.adjacencyList) {
+					let edges = this.adjacencyList[vertex]
+					
+					console.log(vertex + ': ' + edges)
+				}
+			}
+		}
+		
+		/* Функция для рисования графа с использованием библиотеки cytoscape.js */
+		
+		var cy;
+		
+		function draw(graph) {
+			var vertices = graph.getVertices();
+			
+			/* Преобразование списка смежности в массивы вершин и ребер */
+			
+			var nodes = [];
+			for (var i = 0; i < vertices.length; i++) {
+				nodes.push({data: {id: vertices[i]}});
+			}
+			
+			var id = 1;
+			var edges = [];
+			for (var i = 0; i < vertices.length; i++) {
+				var adjacencyList = graph.getAdjacencyList(vertices[i]);
+				for (var j = 0; j < adjacencyList.length; j++) {
+					edges.push({data: {id: 'e' + id, weight: 1, source: vertices[i], target: adjacencyList[j]}});
+					id++;
+				}
+			}
+			
+			/* Инициализация библиотеки */
+			
+			cy = cytoscape({
+				container: document.getElementById('graph'),
+
+				boxSelectionEnabled: false,
+				autounselectify: true,
+
+				style: cytoscape.stylesheet()
+								.selector('node')
+								.style({
+									'content': 'data(id)'
+								})
+								.selector('edge')
+								.style({
+									'curve-style': 'bezier',
+        							'target-arrow-shape': 'triangle',
+									'width': 4,
+									'line-color': '#ddd',
+									'target-arrow-color': '#ddd'
+								})
+								.selector('.highlighted')
+								.style({
+									'background-color': '#61bffc',
+									'line-color': '#61bffc',
+									'target-arrow-color': '#61bffc',
+									'transition-property': 'background-color, line-color, target-arrow-color',
+									'transition-duration': '0.5s'
+								}),
+					
+				elements: {
+					nodes: nodes,
+					edges: edges
+				},
+
+				layout: {
+					directed: true,
+					padding: 10
+				}
+			});
+		}
+		
+		/* Инициализация графа */
+		
+		let graph = new Graph();
+		
+		graph.addVertex(1);
+		graph.addVertex(2);
+		graph.addVertex(3);
+		graph.addVertex(4);
+		graph.addVertex(5);
+		
+		graph.addEdge(1, 2);
+		graph.addEdge(1, 5);
+		
+		graph.addEdge(2, 3);
+		graph.addEdge(2, 5);
+		
+		graph.addEdge(3, 4);
+		graph.addEdge(3, 5);
+		
+		graph.print();
+		
+		/* Рисование графа */
+		
+		draw(graph);
+		
+		/* Поиск в ширину с использованием очереди */
+		
+		var vertex = parseInt(graph.getVertices()[0]); // Первая вершина графа
+		
+		var vertices = [vertex]; // Массив для хранения вершин графа в порядке обхода
+		var queue = [vertex]; // Очередь
+		
+		while (queue.length != 0) {
+			vertex = queue.shift();
+			
+			var adjacencyList = graph.getAdjacencyList(vertex); // список смежности для вершины
+			for (var i = 0; i < adjacencyList.length; i++) {
+				vertex = parseInt(adjacencyList[i]);
+				
+				if (vertices.indexOf(vertex) == - 1) {
+					vertices.push(vertex);
+					queue.push(vertex);
+				}
+			}
+		}
+		
+		console.log('Поиск в ширину: ' + vertices);
+		
+		/* Визуализация поиска в ширину */
+		
+		var bfs = cy.elements().bfs('#1', function() {}, true);
+		
+		var i = 0;
+		var highlight = function() {
+			if (i < bfs.path.length) {
+				bfs.path[i].addClass('highlighted');
+
+				i++;
+				setTimeout(highlight, 1000);
+			}
+		};
+
+		highlight();
+	</script>
+</body>
+</html>
